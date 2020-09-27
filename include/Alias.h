@@ -44,20 +44,20 @@ class Alias {
     Alias(std::string S, Function* Func, int Index = -1);
     Alias(Alias* A);
 
-    Value* getValue();
-    StringRef getName();
+    Value* getValue() const;
+    StringRef getName() const;
 
-    StringRef print();
+    StringRef print() const;
 
-    bool isMem();
-    bool isArg();
-    bool IsGlobalVar();
-    bool isAllocaOrArgOrGlobal();
-    bool sameFunc(Function* Func);
+    bool isMem() const;
+    bool isArg() const;
+    bool IsGlobalVar() const;
+    bool isAllocaOrArgOrGlobal() const;
+    bool sameFunc(Function* Func) const;
 
     bool operator<(const Alias& TheAlias) const;
     bool operator==(const Alias& TheAlias) const;
-    void operator=(const Alias& TheAlias) const;
+    void operator=(const Alias& TheAlias);
 };
 }  // namespace AliasUtil
 

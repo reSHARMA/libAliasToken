@@ -100,7 +100,7 @@ void Alias::setIndex(llvm::GEPOperator* GEPOp) {
 }
 
 /// getValue - Returns the underlying Value* for the alias
-Value* Alias::getValue() {
+Value* Alias::getValue() const {
     if (this->Kind == 0) {
         return this->Val;
     }
@@ -108,7 +108,7 @@ Value* Alias::getValue() {
 }
 
 /// print - Prints the alias
-StringRef Alias::print() {
+StringRef Alias::print() const {
     if (!IsGlobal && (Kind == 0 || Kind == 2 || Kind == 3)) {
         errs() << "[" << this->Func->getName() << "]"
                << " ";
@@ -133,7 +133,7 @@ StringRef Alias::print() {
 
 /// getName - Returns the name of alias with other informations like parent
 /// function etc
-StringRef Alias::getName() {
+StringRef Alias::getName() const {
     if (this->Kind == 0) {
         return this->Val->getName();
     } else if (this->Kind == 2) {
@@ -145,22 +145,22 @@ StringRef Alias::getName() {
 }
 
 /// isMem - Returns true if the alias denotes a location in heap
-bool Alias::isMem() { return this->Kind == 1; }
+bool Alias::isMem() const { return this->Kind == 1; }
 
 /// isGlobalVar - Returns true if the alias is global
-bool Alias::IsGlobalVar() { return this->Kind == 0 && this->IsGlobal; }
+bool Alias::IsGlobalVar() const { return this->Kind == 0 && this->IsGlobal; }
 
 /// isArg - Returns true if alias is a function argument
-bool Alias::isArg() { return this->Kind == 2; }
+bool Alias::isArg() const { return this->Kind == 2; }
 
 /// isAllocaOrArgOrGlobal - Returns true if the alias is global, an argument or
 /// alloca
-bool Alias::isAllocaOrArgOrGlobal() {
+bool Alias::isAllocaOrArgOrGlobal() const {
     return this->isMem() || this->IsGlobalVar() || this->isArg();
 }
 
 /// sameFunc = Returns true if the parent function of alias is same as /p Func
-bool Alias::sameFunc(llvm::Function* Func) {
+bool Alias::sameFunc(llvm::Function* Func) const {
     if (this->Func) return this->Func == Func;
     return false;
 }
@@ -200,7 +200,7 @@ bool Alias::operator==(const Alias& TheAlias) const {
 }
 
 void Alias::operator=(const Alias& TheAlias) {
-    unsigned int Kind = TheAlias->Kind;
+    unsigned int Kind = TheAlias.Kind;
     if (Kind == 0) {
         set(TheAlias.Val, TheAlias.Kind, TheAlias.Index, TheAlias.Func);
     } else if (Kind == 1) {
