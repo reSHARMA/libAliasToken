@@ -57,6 +57,7 @@ class Alias {
 
     bool operator<(const Alias& TheAlias) const;
     bool operator==(const Alias& TheAlias) const;
+    void operator=(const Alias& TheAlias) const;
 };
 }  // namespace AliasUtil
 

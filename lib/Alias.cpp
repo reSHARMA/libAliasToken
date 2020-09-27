@@ -2,8 +2,8 @@
 
 namespace AliasUtil {
 
-void Alias::set(llvm::Value* Val, unsigned int Kind, int Index, llvm::Function* Func,
-                bool Global) {
+void Alias::set(llvm::Value* Val, unsigned int Kind, int Index,
+                llvm::Function* Func, bool Global) {
     this->Val = Val;
     this->Kind = Kind;
     this->Index = Index;
@@ -17,14 +17,16 @@ void Alias::set(llvm::Type* Ty, unsigned int Kind, int Index) {
     this->Index = Index;
 }
 
-void Alias::set(llvm::Argument* Arg, unsigned int Kind, int Index, llvm::Function* Func) {
+void Alias::set(llvm::Argument* Arg, unsigned int Kind, int Index,
+                llvm::Function* Func) {
     this->Arg = Arg;
     this->Kind = Kind;
     this->Index = Index;
     this->Func = Func;
 }
 
-void Alias::set(std::string S, unsigned int Kind, int Index, llvm::Function* Func) {
+void Alias::set(std::string S, unsigned int Kind, int Index,
+                llvm::Function* Func) {
     this->name = S;
     this->Kind = Kind;
     this->Index = Index;
@@ -197,4 +199,17 @@ bool Alias::operator==(const Alias& TheAlias) const {
     return equal && this->Index == TheAlias.Index;
 }
 
-} // namespace AliasUtil
+void Alias::operator=(const Alias& TheAlias) {
+    unsigned int Kind = TheAlias->Kind;
+    if (Kind == 0) {
+        set(TheAlias.Val, TheAlias.Kind, TheAlias.Index, TheAlias.Func);
+    } else if (Kind == 1) {
+        set(TheAlias.Ty, TheAlias.Kind, TheAlias.Index);
+    } else if (Kind == 2) {
+        set(TheAlias.Arg, TheAlias.Kind, TheAlias.Index, TheAlias.Func);
+    } else if (Kind == 3) {
+        set(TheAlias.name, TheAlias.Kind, TheAlias.Index, TheAlias.Func);
+    }
+}
+
+}  // namespace AliasUtil
