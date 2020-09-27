@@ -1,0 +1,27 @@
+language: cpp
+dist: bionic
+
+addons:
+  apt:
+    update: true
+    sources:
+      - sourceline: 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-10 main'
+        key_url: 'http://apt.llvm.org/llvm-snapshot.gpg.key'
+    packages:
+      - llvm-10
+      - llvm-10-dev
+      - llvm-10-tools
+      - clang-10
+
+env:
+  - LLVM_HOME=/usr/bin/
+
+compiler:
+  - clang
+  - gcc
+
+script:
+  - mkdir build && cd build
+  - cmake .. && sudo make install
+  - cd ../test && cmake .
+  - make 
