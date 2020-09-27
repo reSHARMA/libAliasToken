@@ -1,9 +1,8 @@
 #include "Alias.h"
 
-using namespace llvm;
 namespace AliasUtil {
 
-void Alias::set(Value* Val, unsigned int Kind, int Index, Function* Func,
+void Alias::set(llvm::Value* Val, unsigned int Kind, int Index, llvm::Function* Func,
                 bool Global) {
     this->Val = Val;
     this->Kind = Kind;
@@ -12,20 +11,20 @@ void Alias::set(Value* Val, unsigned int Kind, int Index, Function* Func,
     this->IsGlobal = Global;
 }
 
-void Alias::set(Type* Ty, unsigned int Kind, int Index) {
+void Alias::set(llvm::Type* Ty, unsigned int Kind, int Index) {
     this->Ty = Ty;
     this->Kind = Kind;
     this->Index = Index;
 }
 
-void Alias::set(Argument* Arg, unsigned int Kind, int Index, Function* Func) {
+void Alias::set(llvm::Argument* Arg, unsigned int Kind, int Index, llvm::Function* Func) {
     this->Arg = Arg;
     this->Kind = Kind;
     this->Index = Index;
     this->Func = Func;
 }
 
-void Alias::set(std::string S, unsigned int Kind, int Index, Function* Func) {
+void Alias::set(std::string S, unsigned int Kind, int Index, llvm::Function* Func) {
     this->name = S;
     this->Kind = Kind;
     this->Index = Index;
@@ -33,27 +32,27 @@ void Alias::set(std::string S, unsigned int Kind, int Index, Function* Func) {
     this->Func = Func;
 }
 
-Alias::Alias(Value* Val, int Index) {
-    if (Argument* Arg = dyn_cast<Argument>(Val)) {
+Alias::Alias(llvm::Value* Val, int Index) {
+    if (llvm::Argument* Arg = dyn_cast<llvm::Argument>(Val)) {
         set(Arg, /* Kind = */ 2, Index, Arg->getParent());
     } else {
-        Function* func = nullptr;
-        if (Instruction* Inst = dyn_cast<Instruction>(Val))
+        llvm::Function* func = nullptr;
+        if (llvm::Instruction* Inst = dyn_cast<llvm::Instruction>(Val))
             func = Inst->getParent()->getParent();
-        if (isa<GlobalVariable>(Val) || !func)
+        if (isa<llvm::GlobalVariable>(Val) || !func)
             set(Val, /* Kind = */ 0, Index, func, true);
         else
             set(Val, /* Kind = */ 0, Index, func);
     }
 }
 
-Alias::Alias(Argument* Arg, int Index) {
+Alias::Alias(llvm::Argument* Arg, int Index) {
     set(Arg, /* Kind = */ 2, Index, Arg->getParent());
 }
 
-Alias::Alias(Type* Ty, int Index) { set(Ty, /* Kind = */ 1, Index); }
+Alias::Alias(llvm::Type* Ty, int Index) { set(Ty, /* Kind = */ 1, Index); }
 
-Alias::Alias(std::string S, Function* Func, int Index) {
+Alias::Alias(std::string S, llvm::Function* Func, int Index) {
     set(S, /* Kind = */ 3, Index, Func);
 }
 
@@ -71,14 +70,14 @@ Alias::Alias(Alias* A) {
 }
 
 /// setIndex - For a GEP Instruction find the offset and store it
-void Alias::setIndex(GetElementPtrInst* GEPInst) {
+void Alias::setIndex(llvm::GetElementPtrInst* GEPInst) {
     auto IterRange = GEPInst->indices();
     auto Iter = IterRange.begin();
     int a = 0;
     while (Iter != IterRange.end()) {
-        Value* temp = &(*Iter->get());
+        llvm::Value* temp = &(*Iter->get());
         // TODO: Can also use getValue of ConstantInt
-        if (ConstantInt* CI = dyn_cast<ConstantInt>(temp))
+        if (llvm::ConstantInt* CI = dyn_cast<llvm::ConstantInt>(temp))
             a = (a * 2) + CI->isOne();
         Iter++;
     }
@@ -86,12 +85,12 @@ void Alias::setIndex(GetElementPtrInst* GEPInst) {
 }
 
 /// setIndex - For a GEP Operator find the offset and store it
-void Alias::setIndex(GEPOperator* GEPOp) {
+void Alias::setIndex(llvm::GEPOperator* GEPOp) {
     auto Iter = GEPOp->idx_begin();
     int a = 0;
     while (Iter != GEPOp->idx_end()) {
-        Value* temp = &(*Iter->get());
-        if (ConstantInt* CI = dyn_cast<ConstantInt>(temp))
+        llvm::Value* temp = &(*Iter->get());
+        if (llvm::ConstantInt* CI = dyn_cast<llvm::ConstantInt>(temp))
             a = (a * 2) + CI->isOne();
         Iter++;
     }
@@ -159,7 +158,7 @@ bool Alias::isAllocaOrArgOrGlobal() {
 }
 
 /// sameFunc = Returns true if the parent function of alias is same as /p Func
-bool Alias::sameFunc(Function* Func) {
+bool Alias::sameFunc(llvm::Function* Func) {
     if (this->Func) return this->Func == Func;
     return false;
 }
@@ -197,4 +196,5 @@ bool Alias::operator==(const Alias& TheAlias) const {
     }
     return equal && this->Index == TheAlias.Index;
 }
-}  // namespace AliasUtil
+
+} // namespace AliasUtil
