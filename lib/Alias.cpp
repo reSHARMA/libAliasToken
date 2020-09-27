@@ -35,13 +35,13 @@ void Alias::set(std::string S, unsigned int Kind, int Index,
 }
 
 Alias::Alias(llvm::Value* Val, int Index) {
-    if (llvm::Argument* Arg = dyn_cast<llvm::Argument>(Val)) {
+    if (llvm::Argument* Arg = llvm::dyn_cast<llvm::Argument>(Val)) {
         set(Arg, /* Kind = */ 2, Index, Arg->getParent());
     } else {
         llvm::Function* func = nullptr;
-        if (llvm::Instruction* Inst = dyn_cast<llvm::Instruction>(Val))
+        if (llvm::Instruction* Inst = llvm::dyn_cast<llvm::Instruction>(Val))
             func = Inst->getParent()->getParent();
-        if (isa<llvm::GlobalVariable>(Val) || !func)
+        if (llvm::isa<llvm::GlobalVariable>(Val) || !func)
             set(Val, /* Kind = */ 0, Index, func, true);
         else
             set(Val, /* Kind = */ 0, Index, func);
@@ -79,7 +79,7 @@ void Alias::setIndex(llvm::GetElementPtrInst* GEPInst) {
     while (Iter != IterRange.end()) {
         llvm::Value* temp = &(*Iter->get());
         // TODO: Can also use getValue of ConstantInt
-        if (llvm::ConstantInt* CI = dyn_cast<llvm::ConstantInt>(temp))
+        if (llvm::ConstantInt* CI = llvm::dyn_cast<llvm::ConstantInt>(temp))
             a = (a * 2) + CI->isOne();
         Iter++;
     }
@@ -92,7 +92,7 @@ void Alias::setIndex(llvm::GEPOperator* GEPOp) {
     int a = 0;
     while (Iter != GEPOp->idx_end()) {
         llvm::Value* temp = &(*Iter->get());
-        if (llvm::ConstantInt* CI = dyn_cast<llvm::ConstantInt>(temp))
+        if (llvm::ConstantInt* CI = llvm::dyn_cast<llvm::ConstantInt>(temp))
             a = (a * 2) + CI->isOne();
         Iter++;
     }
@@ -100,7 +100,7 @@ void Alias::setIndex(llvm::GEPOperator* GEPOp) {
 }
 
 /// getValue - Returns the underlying Value* for the alias
-Value* Alias::getValue() const {
+llvm::Value* Alias::getValue() const {
     if (this->Kind == 0) {
         return this->Val;
     }
@@ -108,32 +108,30 @@ Value* Alias::getValue() const {
 }
 
 /// print - Prints the alias
-StringRef Alias::print() const {
+llvm::StringRef Alias::print() const {
     if (!IsGlobal && (Kind == 0 || Kind == 2 || Kind == 3)) {
-        errs() << "[" << this->Func->getName() << "]"
-               << " ";
+        llvm::errs() << "[" << this->Func->getName() << "]"
+                     << " ";
     }
     if (Kind == 0) {
-        errs() << this->Val->getName();
+        llvm::errs() << this->Val->getName();
     } else if (Kind == 1) {
-        std::string type_str;
-        llvm::raw_string_ostream rso(type_str);
-        this->Ty->print(rso);
-        errs() << type_str;
+        std::string TypeStr = this->getMemTypeName();
+        llvm::errs() << TypeStr;
     } else if (Kind == 2) {
-        errs() << this->Arg->getName();
+        llvm::errs() << this->Arg->getName();
     } else if (Kind == 3) {
-        errs() << this->name;
+        llvm::errs() << this->name;
     }
     if (Index != -1) {
-        errs() << "[" << Index << "]";
+        llvm::errs() << "[" << Index << "]";
     }
     return "";
 }
 
 /// getName - Returns the name of alias with other informations like parent
 /// function etc
-StringRef Alias::getName() const {
+llvm::StringRef Alias::getName() const {
     if (this->Kind == 0) {
         return this->Val->getName();
     } else if (this->Kind == 2) {
@@ -144,19 +142,44 @@ StringRef Alias::getName() const {
     return "";
 }
 
+/// getMemTypeName - Returns the memory type name
+std::string Alias::getMemTypeName() const {
+    std::string MemTyName = "";
+    if (!this->isMem()) return MemTyName;
+    llvm::raw_string_ostream RSO(MemTyName);
+    this->Ty->print(RSO);
+    return MemTyName;
+}
+
+/// getFunctionName - Returns the name of the parent function
+std::string Alias::getFunctionName() const {
+    if (this->isMem() || this->isGlobalVar()) return "";
+    assert(Func != nullptr && "Function can not be null");
+    return (this->Func->getName()).str();
+}
+
+/// getFieldIndex - Returns index of the field
+int Alias::getFieldIndex() const {
+    if (this->isField()) return this->Index;
+    return -1;
+}
+
 /// isMem - Returns true if the alias denotes a location in heap
 bool Alias::isMem() const { return this->Kind == 1; }
 
 /// isGlobalVar - Returns true if the alias is global
-bool Alias::IsGlobalVar() const { return this->Kind == 0 && this->IsGlobal; }
+bool Alias::isGlobalVar() const { return this->IsGlobal; }
 
 /// isArg - Returns true if alias is a function argument
 bool Alias::isArg() const { return this->Kind == 2; }
 
+/// isField - Returns true if alias is a field
+bool Alias::isField() const { return this->Index != -1; }
+
 /// isAllocaOrArgOrGlobal - Returns true if the alias is global, an argument or
 /// alloca
 bool Alias::isAllocaOrArgOrGlobal() const {
-    return this->isMem() || this->IsGlobalVar() || this->isArg();
+    return this->isMem() || this->isGlobalVar() || this->isArg();
 }
 
 /// sameFunc = Returns true if the parent function of alias is same as /p Func
