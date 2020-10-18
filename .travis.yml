@@ -4,18 +4,22 @@ dist: xenial
 addons:
   apt:
     update: true
+    sources:
+      - sourceline: 'deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-11 main'
+        key_url: 'http://apt.llvm.org/llvm-snapshot.gpg.key'
     packages:
-      - wget
+      - llvm-11
+      - llvm-11-dev
+      - llvm-11-tools
+      - clang-11
 
 env:
-  - LLVM_HOME=/tmp/llvm/bin/
+  - LLVM_HOME=/usr/bin/
 
 compiler:
   - gcc
 
 script:
-  - wget -q -O llvm.tar.xz https://github.com/llvm/llvm-project/releases/download/llvmorg-11.0.0/clang+llvm-11.0.0-x86_64-linux-gnu-ubuntu-16.04.tar.xz 
-  - mkdir -p /tmp/llvm && tar -C /tmp/llvm -xf llvm.tar.xz
   - mkdir build && cd build
   - cmake .. && sudo make install
   - cd ../test && cmake .
