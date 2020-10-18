@@ -6,7 +6,7 @@ add_library(AliasToken SHARED
 )
 set_target_properties(AliasToken PROPERTIES
     SOVERSION 0
-    COMPILE_FLAGS "-fno-rtti"
+    COMPILE_FLAGS "-std=c++14 -fno-rtti"
 )
 
 include(GNUInstallDirs)
