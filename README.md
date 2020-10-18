@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  <a href="http://www.amitmerchant.com/electron-markdownify"><img src="https://i.ibb.co/mCjDmJW/d9a96151-4b9f-4c4b-bc66-bdbf64d46b2e-200x200.png" alt="libAliasToken" width="200"></a>
+  <a href="#"><img src="https://i.ibb.co/mCjDmJW/d9a96151-4b9f-4c4b-bc66-bdbf64d46b2e-200x200.png" alt="libAliasToken" width="200"></a>
   <br>
   libAliasToken
   <br>
