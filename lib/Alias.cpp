@@ -107,26 +107,23 @@ llvm::Value* Alias::getValue() const {
     return nullptr;
 }
 
-/// print - Prints the alias
-llvm::StringRef Alias::print() const {
-    if (!IsGlobal && (Kind == 0 || Kind == 2 || Kind == 3)) {
-        llvm::errs() << "[" << this->Func->getName() << "]"
-                     << " ";
+std::ostream& operator<<(std::ostream& OS, const Alias& A) {
+    if (!A.isGlobalVar() && (A.Kind == 0 || A.Kind == 2 || A.Kind == 3)) {
+        OS << "[" << A.Func->getName().str() << "]"
+           << " ";
     }
-    if (Kind == 0) {
-        llvm::errs() << this->Val->getName();
-    } else if (Kind == 1) {
-        std::string TypeStr = this->getMemTypeName();
-        llvm::errs() << TypeStr;
-    } else if (Kind == 2) {
-        llvm::errs() << this->Arg->getName();
-    } else if (Kind == 3) {
-        llvm::errs() << this->name;
+    if (A.Kind == 0) {
+        OS << A.Val->getName().str();
+    } else if (A.Kind == 1) {
+        OS << A.getMemTypeName();
+    } else if (A.Kind == 2) {
+        OS << A.Arg->getName().str();
+    } else if (A.Kind == 3) {
+        OS << A.name;
     }
-    if (Index != -1) {
-        llvm::errs() << "[" << Index << "]";
+    if (A.Index != -1) {
+        OS << "[" << A.Index << "]";
     }
-    return "";
 }
 
 /// getName - Returns the name of alias with other informations like parent

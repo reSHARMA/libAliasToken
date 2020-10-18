@@ -51,7 +51,7 @@ class Alias {
     std::string getFunctionName() const;
     int getFieldIndex() const;
 
-    llvm::StringRef print() const;
+    friend std::ostream& operator<<(std::ostream& OS, const Alias &A);
 
     bool isMem() const;
     bool isArg() const;
