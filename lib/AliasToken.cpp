@@ -178,10 +178,10 @@ std::vector<Alias*> AliasTokens::extractAliasToken(llvm::BitCastInst* Inst) {
                 }
             }
         } else if (CI->getCalledFunction()->getName().startswith("_ZN")) {
-            llvm::Instruction* PrevInst = CI->getPrevNonDebugInstruction();
+            llvm::Instruction* PrevInst = PrevInst->getPrevNonDebugInstruction();
             if (llvm::BitCastInst* BI =
                     llvm::dyn_cast<llvm::BitCastInst>(PrevInst)) {
-                llvm::Instruction* PrevInst = BI->getPrevNonDebugInstruction();
+                llvm::Instruction* PrevInst = PrevInst->getPrevNonDebugInstruction();
                 if (llvm::CallInst* CI =
                         llvm::dyn_cast<llvm::CallInst>(PrevInst)) {
                     if (CI->getCalledFunction()->getName().startswith("_Zn")) {
