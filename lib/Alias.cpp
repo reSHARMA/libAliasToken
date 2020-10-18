@@ -124,6 +124,7 @@ std::ostream& operator<<(std::ostream& OS, const Alias& A) {
     if (A.Index != -1) {
         OS << "[" << A.Index << "]";
     }
+    return OS;
 }
 
 /// getName - Returns the name of alias with other informations like parent
