@@ -198,6 +198,15 @@ std::vector<Alias*> AliasTokens::extractAliasToken(llvm::BitCastInst* Inst) {
     return AliasVec;
 }
 
+/// extractStatementType - Returns the relative level of redirection based of
+/// LHS and RHS on the statement
+std::pair<int, int> AliasTokens::extractStatementType(llvm::Instruction* Inst) {
+    if (llvm::isa<llvm::AllocaInst>(Inst)) return {1, 0};
+    if (llvm::isa<llvm::StoreInst>(Inst)) return {2, 1};
+    if (llvm::isa<llvm::LoadInst>(Inst)) return {1, 2};
+    return {1, 1};
+}
+
 AliasTokens::~AliasTokens() {
     for (auto X : AliasBank) {
         delete X.second;
