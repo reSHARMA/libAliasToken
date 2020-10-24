@@ -17,7 +17,7 @@ env:
   - LLVM_HOME=/usr/bin/
 
 compiler:
-  - clang
+  - gcc
 
 script:
   - mkdir build && cd build
