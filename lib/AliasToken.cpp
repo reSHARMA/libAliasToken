@@ -119,10 +119,10 @@ std::vector<Alias*> AliasTokens::extractAliasToken(llvm::StoreInst* Inst) {
     // The operands are returned in the same order as they are present in the
     // instruction example store op1 op2
     std::vector<Alias*> AliasVec;
+    AliasVec.push_back(this->getAliasToken(Inst->getPointerOperand()));
     llvm::Value* ValOp = Inst->getValueOperand();
     if (!llvm::isa<llvm::ConstantInt>(ValOp))
         AliasVec.push_back(this->getAliasToken(ValOp));
-    AliasVec.push_back(this->getAliasToken(Inst->getPointerOperand()));
     return AliasVec;
 }
 
@@ -156,7 +156,7 @@ std::vector<Alias*> AliasTokens::extractAliasToken(llvm::ReturnInst* Inst) {
     // The operands are returned in the same order as they are present in the
     // instruction example return op1
     llvm::Value* RetVal = Inst->getReturnValue();
-    if (!llvm::isa<llvm::ConstantInt>(RetVal))
+    if (RetVal && !llvm::isa<llvm::ConstantInt>(RetVal))
         return {this->getAliasToken(RetVal)};
 }
 
@@ -167,30 +167,14 @@ std::vector<Alias*> AliasTokens::extractAliasToken(llvm::BitCastInst* Inst) {
     // instruction example x = bitcast op1
     std::vector<Alias*> AliasVec;
     AliasVec.push_back(this->getAliasToken(Inst));
-    llvm::Instruction* PrevInst = Inst->getPrevNonDebugInstruction();
-    if (llvm::CallInst* CI = llvm::dyn_cast<llvm::CallInst>(PrevInst)) {
-        if (CI->getCalledFunction()->getName().startswith("_Zn")) {
-            llvm::Instruction* NextInst = Inst->getNextNonDebugInstruction();
-            if (llvm::CallInst* NextCI =
-                    llvm::dyn_cast<llvm::CallInst>(NextInst)) {
-                if (NextCI->getCalledFunction()->getName().startswith("_ZN")) {
-                    AliasVec.push_back(this->getAliasToken(Inst->getDestTy()));
-                }
-            }
-        } else if (CI->getCalledFunction()->getName().startswith("_ZN")) {
-            llvm::Instruction* PrevInst = CI->getPrevNonDebugInstruction();
-            if (llvm::BitCastInst* BI =
-                    llvm::dyn_cast<llvm::BitCastInst>(PrevInst)) {
-                llvm::Instruction* PrevInst = BI->getPrevNonDebugInstruction();
-                if (llvm::CallInst* CI =
-                        llvm::dyn_cast<llvm::CallInst>(PrevInst)) {
-                    if (CI->getCalledFunction()->getName().startswith("_Zn")) {
-                        AliasVec.push_back(
-                            this->getAliasToken(Inst->getSrcTy()));
-                    }
-                }
-            }
-        }
+    if (llvm::CallInst* CI =
+            llvm::dyn_cast<llvm::CallInst>(Inst->getOperand(0))) {
+        if (CI->getCalledFunction()->getName().startswith("_Zn") ||
+            CI->getCalledFunction()->getName().startswith("_zn"))
+            AliasVec.push_back(this->getAliasToken(Inst->getDestTy()));
+    } else if (llvm::BitCastInst* BI =
+                   llvm::dyn_cast<llvm::BitCastInst>(Inst->getOperand(0))) {
+        AliasVec.push_back(this->getAliasToken(BI->getDestTy()));
     }
     if (AliasVec.size() == 1) {
         AliasVec.push_back(this->getAliasToken(Inst->getOperand(0)));

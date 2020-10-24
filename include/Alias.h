@@ -50,7 +50,6 @@ class Alias {
     std::string getMemTypeName() const;
     std::string getFunctionName() const;
     int getFieldIndex() const;
-
     friend std::ostream& operator<<(std::ostream& OS, const Alias &A);
 
     bool isMem() const;
