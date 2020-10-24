@@ -1,7 +1,7 @@
 #!/bin/bash
 
 OPT="$LLVM_HOME/opt"
-CC="$LLVM_HOME/clang-10"
+CC="$LLVM_HOME/clang-11"
 
 for x in src/*; do
     $CC -S -emit-llvm -o /tmp/test.ll $x
