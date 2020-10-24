@@ -11,6 +11,6 @@ add_library(TestPass SHARED
 )
 
 set_target_properties(TestPass PROPERTIES
-    COMPILE_FLAGS "-fno-rtti"
+    COMPILE_FLAGS "-std=c++14 -fno-rtti"
 )
 add_custom_command(TARGET TestPass POST_BUILD COMMAND bash run.sh)
