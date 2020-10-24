@@ -5,13 +5,13 @@ addons:
   apt:
     update: true
     sources:
-      - sourceline: 'deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-11 main'
+      - sourceline: 'deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-10 main'
         key_url: 'http://apt.llvm.org/llvm-snapshot.gpg.key'
     packages:
-      - llvm-11
-      - llvm-11-dev
-      - llvm-11-tools
-      - clang-11
+      - llvm-10
+      - llvm-10-dev
+      - llvm-10-tools
+      - clang-10
 
 env:
   - LLVM_HOME=/usr/bin/
