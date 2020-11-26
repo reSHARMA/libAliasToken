@@ -34,6 +34,7 @@ class AliasTokens {
     std::vector<Alias*> extractAliasToken(llvm::AllocaInst*);
     std::vector<Alias*> extractAliasToken(llvm::BitCastInst*);
     std::vector<Alias*> extractAliasToken(llvm::ReturnInst*);
+    std::vector<Alias*> extractAliasToken(llvm::GetElementPtrInst*);
 
     std::pair<int, int> extractStatementType(llvm::Instruction*);
 

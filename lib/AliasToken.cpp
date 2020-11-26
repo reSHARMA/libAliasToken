@@ -104,6 +104,9 @@ std::vector<Alias*> AliasTokens::extractAliasToken(llvm::Instruction* Inst) {
         return extractAliasToken(BI);
     } else if (llvm::ReturnInst* RI = llvm::dyn_cast<llvm::ReturnInst>(Inst)) {
         return extractAliasToken(RI);
+    } else if (llvm::GetElementPtrInst* GEP =
+                   llvm::dyn_cast<llvm::GetElementPtrInst>(Inst)) {
+        return extractAliasToken(GEP);
     } else {
         // Direct support to some instructions may not be useful example
         // CallInst, as it is more useful to generate alias object for call
@@ -181,6 +184,18 @@ std::vector<Alias*> AliasTokens::extractAliasToken(llvm::BitCastInst* Inst) {
     if (AliasVec.size() == 1) {
         AliasVec.push_back(this->getAliasToken(Inst->getOperand(0)));
     }
+    return AliasVec;
+}
+
+/// extractAliasToken - Returns a vector of alias objects for GetElementPointer
+/// \Inst operands.
+std::vector<Alias*> AliasTokens::extractAliasToken(
+    llvm::GetElementPtrInst* Inst) {
+    // Only provides partial support and returns {op1, op2} for op1 = GEP op2
+    // idx1 idx2
+    std::vector<Alias*> AliasVec;
+    AliasVec.push_back(this->getAliasToken(Inst));
+    AliasVec.push_back(this->getAliasToken(Inst->getPointerOperand()));
     return AliasVec;
 }
 
