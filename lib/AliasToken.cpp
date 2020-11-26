@@ -155,9 +155,11 @@ std::vector<Alias*> AliasTokens::extractAliasToken(llvm::AllocaInst* Inst) {
 std::vector<Alias*> AliasTokens::extractAliasToken(llvm::ReturnInst* Inst) {
     // The operands are returned in the same order as they are present in the
     // instruction example return op1
+    std::vector<Alias*> AliasVec;
     llvm::Value* RetVal = Inst->getReturnValue();
     if (RetVal && !llvm::isa<llvm::ConstantInt>(RetVal))
-        return {this->getAliasToken(RetVal)};
+        AliasVec.push_back(this->getAliasToken(RetVal));
+    return AliasVec;
 }
 
 /// extractAliasToken - Returns a vector of alias objects for BitCastInst \Inst
