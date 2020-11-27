@@ -21,36 +21,36 @@ class Alias {
     // 1 is Type
     // 2 is Argument
     // 3 is Dummy
-    int Index;
+    std::string Index;
     unsigned int Kind;
     llvm::Function* Func;
     std::string name;
     bool IsGlobal;
 
-    void set(llvm::Value* Val, unsigned int Kind, int Index,
+    void set(llvm::Value* Val, unsigned int Kind, std::string Index,
              llvm::Function* Func, bool Global = false);
-    void set(llvm::Type* Ty, unsigned int Kind, int Index);
-    void set(llvm::Argument* Arg, unsigned int Kind, int Index,
+    void set(llvm::Type* Ty, unsigned int Kind, std::string Index);
+    void set(llvm::Argument* Arg, unsigned int Kind, std::string Index,
              llvm::Function* Func);
-    void set(std::string S, unsigned int Kind, int Index, llvm::Function* Func);
+    void set(std::string S, unsigned int Kind, std::string Index,
+             llvm::Function* Func);
 
    public:
-
     void setIndex(llvm::GetElementPtrInst* GEPInst);
     void setIndex(llvm::GEPOperator* GEPOp);
 
-    Alias(llvm::Value* Val, int Index = -1);
-    Alias(llvm::Argument* Arg, int Index = -1);
-    Alias(llvm::Type* Ty, int Index = -1);
-    Alias(std::string S, llvm::Function* Func, int Index = -1);
+    Alias(llvm::Value* Val, std::string Index = "");
+    Alias(llvm::Argument* Arg, std::string Index = "");
+    Alias(llvm::Type* Ty, std::string Index = "");
+    Alias(std::string S, llvm::Function* Func, std::string Index = "");
     Alias(Alias* A);
 
     llvm::Value* getValue() const;
     llvm::StringRef getName() const;
     std::string getMemTypeName() const;
     std::string getFunctionName() const;
-    int getFieldIndex() const;
-    friend std::ostream& operator<<(std::ostream& OS, const Alias &A);
+    std::string getFieldIndex() const;
+    friend std::ostream& operator<<(std::ostream& OS, const Alias& A);
 
     bool isMem() const;
     bool isArg() const;

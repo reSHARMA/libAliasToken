@@ -2,7 +2,7 @@
 
 namespace AliasUtil {
 
-void Alias::set(llvm::Value* Val, unsigned int Kind, int Index,
+void Alias::set(llvm::Value* Val, unsigned int Kind, std::string Index,
                 llvm::Function* Func, bool Global) {
     this->Val = Val;
     this->Kind = Kind;
@@ -11,13 +11,13 @@ void Alias::set(llvm::Value* Val, unsigned int Kind, int Index,
     this->IsGlobal = Global;
 }
 
-void Alias::set(llvm::Type* Ty, unsigned int Kind, int Index) {
+void Alias::set(llvm::Type* Ty, unsigned int Kind, std::string Index) {
     this->Ty = Ty;
     this->Kind = Kind;
     this->Index = Index;
 }
 
-void Alias::set(llvm::Argument* Arg, unsigned int Kind, int Index,
+void Alias::set(llvm::Argument* Arg, unsigned int Kind, std::string Index,
                 llvm::Function* Func) {
     this->Arg = Arg;
     this->Kind = Kind;
@@ -25,7 +25,7 @@ void Alias::set(llvm::Argument* Arg, unsigned int Kind, int Index,
     this->Func = Func;
 }
 
-void Alias::set(std::string S, unsigned int Kind, int Index,
+void Alias::set(std::string S, unsigned int Kind, std::string Index,
                 llvm::Function* Func) {
     this->name = S;
     this->Kind = Kind;
@@ -34,7 +34,7 @@ void Alias::set(std::string S, unsigned int Kind, int Index,
     this->Func = Func;
 }
 
-Alias::Alias(llvm::Value* Val, int Index) {
+Alias::Alias(llvm::Value* Val, std::string Index) {
     if (llvm::Argument* Arg = llvm::dyn_cast<llvm::Argument>(Val)) {
         set(Arg, /* Kind = */ 2, Index, Arg->getParent());
     } else {
@@ -48,13 +48,15 @@ Alias::Alias(llvm::Value* Val, int Index) {
     }
 }
 
-Alias::Alias(llvm::Argument* Arg, int Index) {
+Alias::Alias(llvm::Argument* Arg, std::string Index) {
     set(Arg, /* Kind = */ 2, Index, Arg->getParent());
 }
 
-Alias::Alias(llvm::Type* Ty, int Index) { set(Ty, /* Kind = */ 1, Index); }
+Alias::Alias(llvm::Type* Ty, std::string Index) {
+    set(Ty, /* Kind = */ 1, Index);
+}
 
-Alias::Alias(std::string S, llvm::Function* Func, int Index) {
+Alias::Alias(std::string S, llvm::Function* Func, std::string Index) {
     set(S, /* Kind = */ 3, Index, Func);
 }
 
@@ -75,28 +77,30 @@ Alias::Alias(Alias* A) {
 void Alias::setIndex(llvm::GetElementPtrInst* GEPInst) {
     auto IterRange = GEPInst->indices();
     auto Iter = IterRange.begin();
-    int a = 0;
     while (Iter != IterRange.end()) {
         llvm::Value* temp = &(*Iter->get());
         // TODO: Can also use getValue of ConstantInt
         if (llvm::ConstantInt* CI = llvm::dyn_cast<llvm::ConstantInt>(temp))
-            a = (a * 2) + CI->isOne();
+            if (CI->isOne())
+                this->Index += "1";
+            else
+                this->Index += "0";
         Iter++;
     }
-    this->Index = a;
 }
 
 /// setIndex - For a GEP Operator find the offset and store it
 void Alias::setIndex(llvm::GEPOperator* GEPOp) {
     auto Iter = GEPOp->idx_begin();
-    int a = 0;
     while (Iter != GEPOp->idx_end()) {
         llvm::Value* temp = &(*Iter->get());
         if (llvm::ConstantInt* CI = llvm::dyn_cast<llvm::ConstantInt>(temp))
-            a = (a * 2) + CI->isOne();
+            if (CI->isOne())
+                this->Index += "1";
+            else
+                this->Index += "0";
         Iter++;
     }
-    this->Index = a;
 }
 
 /// getValue - Returns the underlying Value* for the alias
@@ -121,8 +125,8 @@ std::ostream& operator<<(std::ostream& OS, const Alias& A) {
     } else if (A.Kind == 3) {
         OS << A.name;
     }
-    if (A.Index != -1) {
-        OS << "[" << A.Index << "]";
+    if (A.Index != "") {
+        for (char c : A.Index) OS << "[" << c << "]";
     }
     return OS;
 }
@@ -157,9 +161,8 @@ std::string Alias::getFunctionName() const {
 }
 
 /// getFieldIndex - Returns index of the field
-int Alias::getFieldIndex() const {
-    if (this->isField()) return this->Index;
-    return -1;
+std::string Alias::getFieldIndex() const {
+    return this -> Index;
 }
 
 /// isMem - Returns true if the alias denotes a location in heap
@@ -172,7 +175,7 @@ bool Alias::isGlobalVar() const { return this->IsGlobal; }
 bool Alias::isArg() const { return this->Kind == 2; }
 
 /// isField - Returns true if alias is a field
-bool Alias::isField() const { return this->Index != -1; }
+bool Alias::isField() const { return this->Index != ""; }
 
 /// isAllocaOrArgOrGlobal - Returns true if the alias is global, an argument or
 /// alloca
