@@ -5,6 +5,7 @@
 #include "llvm/IR/Argument.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/Function.h"
+#include "llvm/IR/GlobalVariable.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/Type.h"
 #include "llvm/IR/Value.h"
@@ -35,8 +36,10 @@ class AliasTokens {
     std::vector<Alias*> extractAliasToken(llvm::BitCastInst*);
     std::vector<Alias*> extractAliasToken(llvm::ReturnInst*);
     std::vector<Alias*> extractAliasToken(llvm::GetElementPtrInst*);
+    std::vector<Alias*> extractAliasToken(llvm::GlobalVariable*);
 
-    std::pair<int, int> extractStatementType(llvm::Instruction*);
+    template <typename Ty>
+    std::pair<int, int> extractStatementType(Ty*);
 
     ~AliasTokens();
 };

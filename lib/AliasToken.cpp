@@ -10,7 +10,7 @@ std::string AliasTokens::getHash(Alias* A) {
     hash += A->getName().str();
     hash += A->getFunctionName();
     hash += A->getMemTypeName();
-    hash += std::to_string(A->getFieldIndex());
+    hash += A->getFieldIndex();
     return hash;
 }
 
@@ -116,6 +116,19 @@ std::vector<Alias*> AliasTokens::extractAliasToken(llvm::Instruction* Inst) {
     return {};
 }
 
+/// extractAliasToken - Returns a vector of alias objects derived from
+/// Global variable \Global operands
+std::vector<Alias*> AliasTokens::extractAliasToken(
+    llvm::GlobalVariable* Global) {
+    std::vector<Alias*> AliasVec;
+    if (Global->hasName() && !Global->getName().startswith("_")) {
+        AliasVec.push_back(this->getAliasToken(Global));
+        AliasVec.push_back(
+            this->getAliasToken(Global->getName().str() + "-orig", nullptr));
+    }
+    return AliasVec;
+}
+
 /// extractAliasToken - Returns a vector of alias objects for StoreInst \Inst
 /// operands.
 std::vector<Alias*> AliasTokens::extractAliasToken(llvm::StoreInst* Inst) {
@@ -201,12 +214,17 @@ std::vector<Alias*> AliasTokens::extractAliasToken(
 
 /// extractStatementType - Returns the relative level of redirection based of
 /// LHS and RHS on the statement
-std::pair<int, int> AliasTokens::extractStatementType(llvm::Instruction* Inst) {
-    if (llvm::isa<llvm::AllocaInst>(Inst)) return {1, 0};
+template <typename Ty>
+std::pair<int, int> AliasTokens::extractStatementType(Ty* Inst) {
+    if (llvm::isa<llvm::AllocaInst>(Inst) ||
+        llvm::isa<llvm::GlobalVariable>(Inst))
+        return {1, 0};
     if (llvm::isa<llvm::StoreInst>(Inst)) return {2, 1};
     if (llvm::isa<llvm::LoadInst>(Inst)) return {1, 2};
     return {1, 1};
 }
+template std::pair<int, int> AliasTokens::extractStatementType<llvm::Instruction>(llvm::Instruction*);
+template std::pair<int, int> AliasTokens::extractStatementType<llvm::GlobalVariable>(llvm::GlobalVariable*);
 
 AliasTokens::~AliasTokens() {
     for (auto X : AliasBank) {
