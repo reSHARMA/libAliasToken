@@ -37,6 +37,8 @@ class AliasTokens {
     std::vector<Alias*> extractAliasToken(llvm::ReturnInst*);
     std::vector<Alias*> extractAliasToken(llvm::GetElementPtrInst*);
     std::vector<Alias*> extractAliasToken(llvm::GlobalVariable*);
+    std::vector<Alias*> extractAliasToken(llvm::CallInst*);
+    std::vector<Alias*> extractAliasToken(llvm::Argument*, llvm::Function*);
 
     template <typename Ty>
     std::pair<int, int> extractStatementType(Ty*);

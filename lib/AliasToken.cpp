@@ -107,6 +107,8 @@ std::vector<Alias*> AliasTokens::extractAliasToken(llvm::Instruction* Inst) {
     } else if (llvm::GetElementPtrInst* GEP =
                    llvm::dyn_cast<llvm::GetElementPtrInst>(Inst)) {
         return extractAliasToken(GEP);
+    } else if (llvm::CallInst* CI = llvm::dyn_cast<llvm::CallInst>(Inst)) {
+        return extractAliasToken(CI);
     } else {
         // Direct support to some instructions may not be useful example
         // CallInst, as it is more useful to generate alias object for call
@@ -212,6 +214,28 @@ std::vector<Alias*> AliasTokens::extractAliasToken(
     return AliasVec;
 }
 
+/// extractAliasToken - Returns a vector of alias objects for Argument \Arg of
+/// Function \Func
+std::vector<Alias*> AliasTokens::extractAliasToken(llvm::Argument* Arg,
+                                                   llvm::Function* Func) {
+    std::vector<Alias*> AliasVec;
+    Alias* ArgAlias = this->getAliasToken(Arg);
+    AliasVec.push_back(ArgAlias);
+    AliasVec.push_back(
+        this->getAliasToken(Arg->getName().str() + "-orig", Func));
+    return AliasVec;
+}
+
+/// extractAliasToken - Returns the alias object for variable storing the
+/// return value from the function call
+std::vector<Alias*> AliasTokens::extractAliasToken(llvm::CallInst* CI) {
+    std::vector<Alias*> AliasVec;
+    if (!CI->doesNotReturn()) {
+        AliasVec.push_back(this->getAliasToken(CI));
+    }
+    return AliasVec;
+}
+
 /// extractStatementType - Returns the relative level of redirection based of
 /// LHS and RHS on the statement
 template <typename Ty>
@@ -223,8 +247,10 @@ std::pair<int, int> AliasTokens::extractStatementType(Ty* Inst) {
     if (llvm::isa<llvm::LoadInst>(Inst)) return {1, 2};
     return {1, 1};
 }
-template std::pair<int, int> AliasTokens::extractStatementType<llvm::Instruction>(llvm::Instruction*);
-template std::pair<int, int> AliasTokens::extractStatementType<llvm::GlobalVariable>(llvm::GlobalVariable*);
+template std::pair<int, int>
+AliasTokens::extractStatementType<llvm::Instruction>(llvm::Instruction*);
+template std::pair<int, int>
+AliasTokens::extractStatementType<llvm::GlobalVariable>(llvm::GlobalVariable*);
 
 AliasTokens::~AliasTokens() {
     for (auto X : AliasBank) {
