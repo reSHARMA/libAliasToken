@@ -17,7 +17,7 @@ std::string AliasTokens::getHash(Alias* A) {
 /// isCached - Returns true if Alias \p A is already present in cache
 bool AliasTokens::isCached(Alias* A) {
     std::string hash = getHash(A);
-    return AliasBank.find(hash) != AliasBank.end();
+    return (AliasBank.find(hash) != AliasBank.end());
 }
 
 /// insert - Returns true after inserting the Alias \p A in cache, retuns false

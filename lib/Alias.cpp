@@ -15,6 +15,7 @@ void Alias::set(llvm::Type* Ty, unsigned int Kind, std::string Index) {
     this->Ty = Ty;
     this->Kind = Kind;
     this->Index = Index;
+    this->IsGlobal = false;
 }
 
 void Alias::set(llvm::Argument* Arg, unsigned int Kind, std::string Index,
@@ -23,13 +24,16 @@ void Alias::set(llvm::Argument* Arg, unsigned int Kind, std::string Index,
     this->Kind = Kind;
     this->Index = Index;
     this->Func = Func;
+    this->IsGlobal = false;
 }
 
 void Alias::set(std::string S, unsigned int Kind, std::string Index,
                 llvm::Function* Func) {
+    this->Val = nullptr;
     this->name = S;
     this->Kind = Kind;
     this->Index = Index;
+    this->IsGlobal = false;
     if (!Func) this->IsGlobal = true;
     this->Func = Func;
 }
