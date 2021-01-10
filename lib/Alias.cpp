@@ -194,7 +194,7 @@ bool Alias::sameFunc(llvm::Function* Func) const {
 
 ///  getHash - Calculates the hash for alias to avoid multiple enteries of same
 ///  alias
-std::string Alias::getHash() {
+std::string Alias::getHash() const {
     std::string hash = "";
     if (this->isGlobalVar()) hash += "G";
     hash += this->getName().str();
@@ -205,40 +205,11 @@ std::string Alias::getHash() {
 }
 
 bool Alias::operator<(const Alias& TheAlias) const {
-    if (this->isGlobalVar() ^ TheAlias.isGlobalVar()) {
-        if (this->isGlobalVar())
-            return true;
-        else
-            return false;
-    }
-    if (this->Index != TheAlias.Index) return (this->Index < TheAlias.Index);
-    if (Kind == 1) return (this->Ty < TheAlias.Ty);
-    if (this->Func != TheAlias.Func) return (this->Func < TheAlias.Func);
-    bool less = false;
-    if (Kind == 0) {
-        less = this->Val < TheAlias.Val;
-    } else if (Kind == 2) {
-        less = this->Arg < TheAlias.Arg;
-    } else if (Kind == 3) {
-        less = this->name < TheAlias.name;
-    }
-    return less;
+    return (this->getHash() < TheAlias.getHash());
 }
 
 bool Alias::operator==(const Alias& TheAlias) const {
-    bool equal = false;
-    if (this->isGlobalVar() ^ TheAlias.isGlobalVar()) return equal;
-    if (this->Index != TheAlias.Index) return equal;
-    if (Kind == 1) return (this->Ty == TheAlias.Ty);
-    if (this->Func != TheAlias.Func) return equal;
-    if (Kind == 0) {
-        equal = this->Val == TheAlias.Val;
-    } else if (Kind == 2) {
-        equal = this->Arg == TheAlias.Arg;
-    } else if (Kind == 3) {
-        equal = this->name == TheAlias.name;
-    }
-    return equal;
+    return (this->getHash() == TheAlias.getHash());
 }
 
 void Alias::operator=(const Alias& TheAlias) {

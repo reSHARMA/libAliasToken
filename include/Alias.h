@@ -58,7 +58,7 @@ class Alias {
     bool isGlobalVar() const;
     bool isAllocaOrArgOrGlobal() const;
     bool sameFunc(llvm::Function* Func) const;
-    std::string getHash();
+    std::string getHash() const;
 
     bool operator<(const Alias& TheAlias) const;
     bool operator==(const Alias& TheAlias) const;
