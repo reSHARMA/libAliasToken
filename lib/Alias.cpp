@@ -9,6 +9,7 @@ void Alias::set(llvm::Value* Val, unsigned int Kind, std::string Index,
     this->Index = Index;
     this->Func = Func;
     this->IsGlobal = Global;
+    if (!Func) this->IsGlobal = true;
 }
 
 void Alias::set(llvm::Type* Ty, unsigned int Kind, std::string Index) {
@@ -165,9 +166,7 @@ std::string Alias::getFunctionName() const {
 }
 
 /// getFieldIndex - Returns index of the field
-std::string Alias::getFieldIndex() const {
-    return this -> Index;
-}
+std::string Alias::getFieldIndex() const { return this->Index; }
 
 /// isMem - Returns true if the alias denotes a location in heap
 bool Alias::isMem() const { return this->Kind == 1; }
@@ -194,37 +193,40 @@ bool Alias::sameFunc(llvm::Function* Func) const {
 }
 
 bool Alias::operator<(const Alias& TheAlias) const {
-    bool less;
+    if (this->isGlobalVar() ^ TheAlias.isGlobalVar()) {
+        if (this->isGlobalVar())
+            return true;
+        else
+            return false;
+    }
+    if (this->Index != TheAlias.Index) return (this->Index < TheAlias.Index);
+    if (Kind == 1) return (this->Ty < TheAlias.Ty);
+    if (this->Func != TheAlias.Func) return (this->Func < TheAlias.Func);
+    bool less = false;
     if (Kind == 0) {
         less = this->Val < TheAlias.Val;
-        less &= this->Func < TheAlias.Func;
-    } else if (Kind == 1) {
-        less = this->Ty < TheAlias.Ty;
     } else if (Kind == 2) {
         less = this->Arg < TheAlias.Arg;
-        less &= this->Func < TheAlias.Func;
     } else if (Kind == 3) {
         less = this->name < TheAlias.name;
-        less &= this->Func < TheAlias.Func;
     }
-    return less && this->Index < TheAlias.Index;
+    return less;
 }
 
 bool Alias::operator==(const Alias& TheAlias) const {
-    bool equal;
+    bool equal = false;
+    if (this->isGlobalVar() ^ TheAlias.isGlobalVar()) return equal;
+    if (this->Index != TheAlias.Index) return equal;
+    if (Kind == 1) return (this->Ty == TheAlias.Ty);
+    if (this->Func != TheAlias.Func) return equal;
     if (Kind == 0) {
         equal = this->Val == TheAlias.Val;
-        equal &= this->Func == TheAlias.Func;
-    } else if (Kind == 1) {
-        equal = this->Ty == TheAlias.Ty;
     } else if (Kind == 2) {
         equal = this->Arg == TheAlias.Arg;
-        equal &= this->Func == TheAlias.Func;
     } else if (Kind == 3) {
         equal = this->name == TheAlias.name;
-        equal &= this->Func == TheAlias.Func;
     }
-    return equal && this->Index == TheAlias.Index;
+    return equal;
 }
 
 void Alias::operator=(const Alias& TheAlias) {
