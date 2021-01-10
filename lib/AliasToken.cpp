@@ -2,21 +2,9 @@
 
 namespace AliasUtil {
 
-///  getHash - Calculates the hash for alias to avoid multiple enteries of same
-///  alias
-std::string AliasTokens::getHash(Alias* A) {
-    std::string hash = "";
-    if (A->isGlobalVar()) hash += "G";
-    hash += A->getName().str();
-    hash += A->getFunctionName();
-    hash += A->getMemTypeName();
-    hash += A->getFieldIndex();
-    return hash;
-}
-
 /// isCached - Returns true if Alias \p A is already present in cache
 bool AliasTokens::isCached(Alias* A) {
-    std::string hash = getHash(A);
+    std::string hash = A->getHash();
     return (AliasBank.find(hash) != AliasBank.end());
 }
 
@@ -27,7 +15,7 @@ bool AliasTokens::insert(Alias* A) {
         delete A;
         return false;
     } else {
-        std::string hash = getHash(A);
+        std::string hash = A->getHash();
         AliasBank[hash] = A;
         return true;
     }
@@ -37,7 +25,7 @@ bool AliasTokens::insert(Alias* A) {
 /// from cache if it already exists
 Alias* AliasTokens::getAliasToken(llvm::Value* Val) {
     Alias* A = new Alias(Val);
-    std::string hash = getHash(A);
+    std::string hash = A->getHash();
     if (insert(A)) return A;
     return AliasBank[hash];
 }
@@ -46,7 +34,7 @@ Alias* AliasTokens::getAliasToken(llvm::Value* Val) {
 /// from cache if it already exists
 Alias* AliasTokens::getAliasToken(llvm::Argument* Arg) {
     Alias* A = new Alias(Arg);
-    std::string hash = getHash(A);
+    std::string hash = A->getHash();
     if (insert(A)) return A;
     return AliasBank[hash];
 }
@@ -55,7 +43,7 @@ Alias* AliasTokens::getAliasToken(llvm::Argument* Arg) {
 /// cache if it already exists
 Alias* AliasTokens::getAliasToken(llvm::Type* Ty) {
     Alias* A = new Alias(Ty);
-    std::string hash = getHash(A);
+    std::string hash = A->getHash();
     if (insert(A)) return A;
     return AliasBank[hash];
 }
@@ -64,7 +52,7 @@ Alias* AliasTokens::getAliasToken(llvm::Type* Ty) {
 /// object from cache if it already exists
 Alias* AliasTokens::getAliasToken(llvm::Instruction* Inst) {
     Alias* A = new Alias(Inst);
-    std::string hash = getHash(A);
+    std::string hash = A->getHash();
     if (insert(A)) return A;
     return AliasBank[hash];
 }
@@ -72,7 +60,7 @@ Alias* AliasTokens::getAliasToken(llvm::Instruction* Inst) {
 /// getAliasToken - Returns Alias object from another alias object \p A, returns
 /// the object from cache if it already exists
 Alias* AliasTokens::getAliasToken(Alias* A) {
-    std::string hash = getHash(A);
+    std::string hash = A->getHash();
     if (insert(A)) return A;
     return AliasBank[hash];
 }
@@ -85,7 +73,7 @@ Alias* AliasTokens::getAliasToken(Alias* A) {
 /// dummy oject at a global scope
 Alias* AliasTokens::getAliasToken(std::string S, llvm::Function* Func) {
     Alias* A = new Alias(S, Func);
-    std::string hash = getHash(A);
+    std::string hash = A->getHash();
     if (insert(A)) return A;
     return AliasBank[hash];
 }

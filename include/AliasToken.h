@@ -17,7 +17,6 @@ namespace AliasUtil {
 class AliasTokens {
    private:
     std::map<std::string, Alias*> AliasBank;
-    std::string getHash(Alias*);
     bool isCached(Alias*);
     bool insert(Alias*);
 

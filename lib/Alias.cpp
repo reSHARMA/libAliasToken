@@ -192,6 +192,18 @@ bool Alias::sameFunc(llvm::Function* Func) const {
     return false;
 }
 
+///  getHash - Calculates the hash for alias to avoid multiple enteries of same
+///  alias
+std::string Alias::getHash() {
+    std::string hash = "";
+    if (this->isGlobalVar()) hash += "G";
+    hash += this->getName().str();
+    hash += this->getFunctionName();
+    hash += this->getMemTypeName();
+    hash += this->getFieldIndex();
+    return hash;
+}
+
 bool Alias::operator<(const Alias& TheAlias) const {
     if (this->isGlobalVar() ^ TheAlias.isGlobalVar()) {
         if (this->isGlobalVar())
