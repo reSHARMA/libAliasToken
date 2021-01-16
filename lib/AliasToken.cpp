@@ -241,6 +241,20 @@ AliasTokens::extractStatementType<llvm::Instruction>(llvm::Instruction*);
 template std::pair<int, int>
 AliasTokens::extractStatementType<llvm::GlobalVariable>(llvm::GlobalVariable*);
 
+/// handleGEPUtil - Returns the extended field value for a GEP
+template <typename GEP>
+Alias* AliasTokens::handleGEPUtil(GEP* G, Alias* Ptr) {
+    if (!Ptr) return Ptr;
+    Alias* FieldVal = new Alias(Ptr);
+    FieldVal->setIndex(G);
+    FieldVal = this->getAliasToken(FieldVal);
+    return FieldVal;
+}
+template Alias* AliasTokens::handleGEPUtil<llvm::GetElementPtrInst>(
+    llvm::GetElementPtrInst* G, Alias* Ptr);
+template Alias* AliasTokens::handleGEPUtil<llvm::GEPOperator>(
+    llvm::GEPOperator* G, Alias* Ptr);
+
 AliasTokens::~AliasTokens() {
     for (auto X : AliasBank) {
         delete X.second;

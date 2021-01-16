@@ -42,6 +42,9 @@ class AliasTokens {
     template <typename Ty>
     std::pair<int, int> extractStatementType(Ty*);
 
+    template <typename GEP>
+    Alias* handleGEPUtil(GEP*, Alias*);
+
     ~AliasTokens();
 };
 
