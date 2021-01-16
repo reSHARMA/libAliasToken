@@ -229,7 +229,8 @@ std::vector<Alias*> AliasTokens::extractAliasToken(llvm::CallInst* CI) {
 template <typename Ty>
 std::pair<int, int> AliasTokens::extractStatementType(Ty* Inst) {
     if (llvm::isa<llvm::AllocaInst>(Inst) ||
-        llvm::isa<llvm::GlobalVariable>(Inst))
+        llvm::isa<llvm::GlobalVariable>(Inst) ||
+        llvm::isa<llvm::GetElementPtrInst>(Inst))
         return {1, 0};
     if (llvm::isa<llvm::StoreInst>(Inst)) return {2, 1};
     if (llvm::isa<llvm::LoadInst>(Inst)) return {1, 2};
